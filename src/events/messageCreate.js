@@ -25,5 +25,23 @@ export default {
     } catch (err) {
       log.error('[messageCreate] Trigger evaluation error:', err.message);
     }
+
+    // Task stage progression — check for TikTok/Drive links from ticket owner
+    if (ticket.task_stage && message.author.id === ticket.user_id) {
+      try {
+        const { advanceTaskStage } = await import('../handlers/taskHandler.js');
+        // Re-fetch ticket so we have latest task_stage after any trigger updates
+        const { getTicket: freshGet } = await import('../db/database.js');
+        const fresh = freshGet(message.channel.id);
+        if (fresh?.task_stage) {
+          const { readFileSync } = await import('fs');
+          const { join } = await import('path');
+          const config = JSON.parse(readFileSync(join(process.cwd(), 'config.json'), 'utf8'));
+          await advanceTaskStage(message.client, config, fresh, message);
+        }
+      } catch (err) {
+        log.error('[messageCreate] Task stage error:', err.message);
+      }
+    }
   },
 };

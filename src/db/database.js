@@ -12,6 +12,13 @@ db.pragma('foreign_keys = ON');
 const schema = readFileSync(join(__dirname, 'schema.sql'), 'utf8');
 db.exec(schema);
 
+// Migration: add task stage columns if they don't exist yet
+const cols = db.prepare("PRAGMA table_info(tickets)").all().map(c => c.name);
+if (!cols.includes('task_stage'))
+  db.exec("ALTER TABLE tickets ADD COLUMN task_stage TEXT DEFAULT NULL");
+if (!cols.includes('task_stage_expires_at'))
+  db.exec("ALTER TABLE tickets ADD COLUMN task_stage_expires_at INTEGER DEFAULT NULL");
+
 export function getTicket(channelId) {
   return db.prepare('SELECT * FROM tickets WHERE channel_id = ?').get(channelId);
 }
@@ -95,6 +102,17 @@ export function upsertTriggerCooldown(channelId, triggerId) {
     VALUES (?, ?, ?)
     ON CONFLICT(channel_id, trigger_id) DO UPDATE SET last_fired = excluded.last_fired
   `).run(channelId, triggerId, Date.now());
+}
+
+export function getExpiredTaskStages() {
+  const now = Date.now();
+  return db.prepare(
+    "SELECT * FROM tickets WHERE task_stage IN ('awaiting_tiktok','awaiting_drive') AND task_stage_expires_at IS NOT NULL AND task_stage_expires_at <= ?"
+  ).all(now);
+}
+
+export function getTicketsByStatus(status) {
+  return db.prepare('SELECT * FROM tickets WHERE status = ?').all(status);
 }
 
 export function getAllOpenTicketsForUser(userId) {

@@ -97,6 +97,21 @@ export async function moveTicket(client, config, channelId, destination, options
       const result = await sendDm(client, ticket.user_id, 'moved_to_task', vars, channelId);
       if (!result.success) await notifyDmFailed(channel, ticket.user_id);
     }
+
+    // Auto-send task assignment if configured
+    if (config.task?.auto_send) {
+      try {
+        const { sendTaskAssignment } = await import('./taskHandler.js');
+        await sendTaskAssignment(client, config, channelId, {
+          stage1Minutes: config.task.stage1_timer_minutes,
+          stage2Days:    config.task.stage2_timer_days,
+          instructions:  config.task.instructions,
+          stage2Message: config.task.stage2_message,
+        });
+      } catch (err) {
+        log.warn(`[ticketHandler] Auto-task send failed: ${err.message}`);
+      }
+    }
   }
 
   if (destination === 'approved') {
@@ -130,8 +145,8 @@ export async function moveTicket(client, config, channelId, destination, options
     const embed = buildApprovedEmbed(ticket, guild);
     await channel.send({ embeds: [embed] });
 
-    // Rename channel with ✅ to visually mark creator approval
-    const currentName = channel.name.replace(/^[^a-z0-9]+/i, '');
+    // Rename channel with ✅ to visually mark creator approval (strip any existing icon prefix)
+    const currentName = channel.name.replace(/^[🔴🟠🔵✅⚠️]+[-\s]*/u, '').replace(/^[-\s]+/, '');
     await channel.setName(`✅-${currentName}`).catch(() => {});
 
     if (!options.skipDm) {

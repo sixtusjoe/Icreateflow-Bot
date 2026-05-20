@@ -11,7 +11,9 @@ CREATE TABLE IF NOT EXISTS tickets (
   closed_at           INTEGER,
   closed_reason       TEXT,
   retry_count         INTEGER DEFAULT 0,
-  delete_at           INTEGER
+  delete_at           INTEGER,
+  task_stage          TEXT DEFAULT NULL,
+  task_stage_expires_at INTEGER DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS ticket_events (

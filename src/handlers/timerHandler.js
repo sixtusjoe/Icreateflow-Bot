@@ -2,6 +2,7 @@ import {
   getExpiredTimers,
   getWarningCandidates,
   getScheduledDeletes,
+  getExpiredTaskStages,
   updateTicket,
   insertEvent,
 } from '../db/database.js';
@@ -43,13 +44,28 @@ export function rearmTimer(channelId, minutes = null) {
 export function startLoop() {
   // Handle any timers that expired while the bot was offline
   processExpiredTimers();
+  processExpiredTaskStages();
 
   setInterval(() => {
     processExpiredTimers();
     processTimerWarnings();
+    processExpiredTaskStages();
   }, 30_000);
 
   log.info('[timerHandler] Inactivity timer loop started (30s interval)');
+}
+
+async function processExpiredTaskStages() {
+  const expired = getExpiredTaskStages();
+  for (const ticket of expired) {
+    try {
+      const { closeTicket } = await import('./ticketHandler.js');
+      await closeTicket(_client, _config, ticket.channel_id, 'Task deadline missed');
+      log.info(`[timerHandler] Closed ticket ${ticket.channel_id} — task deadline missed (stage: ${ticket.task_stage})`);
+    } catch (err) {
+      log.error(`[timerHandler] Failed to close expired task ticket ${ticket.channel_id}: ${err.message}`);
+    }
+  }
 }
 
 export function startCleanupLoop() {

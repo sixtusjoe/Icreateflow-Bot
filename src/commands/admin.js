@@ -23,6 +23,7 @@ export async function execute(interaction) {
       { name: '🔄  Reload',       value: 'Hot-reload config without restarting',     inline: true },
       { name: '🔒  Close All',    value: 'Force-close every open ticket',            inline: true },
       { name: '📢  Post Panel',   value: 'Re-send the Open Ticket panel here',       inline: true },
+      { name: '📨  Send Message', value: 'Send task or message to ticket channels',  inline: true },
     )
     .setFooter({ text: 'Only visible to you — use responsibly' })
     .setTimestamp();
@@ -36,6 +37,7 @@ export async function execute(interaction) {
   const row2 = new ActionRowBuilder().addComponents(
     new ButtonBuilder().setCustomId('admin_close_all').setLabel('Close All Tickets').setEmoji('🔒').setStyle(ButtonStyle.Danger),
     new ButtonBuilder().setCustomId('admin_post_panel').setLabel('Post Panel Here').setEmoji('📢').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId('admin_send_message').setLabel('Send Message').setEmoji('📨').setStyle(ButtonStyle.Primary),
   );
 
   await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });

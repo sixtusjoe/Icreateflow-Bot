@@ -32,6 +32,14 @@
     "color": "#CCCC00"
   },
   "welcome_message": "👋 Welcome {user}! Please fill out the intake form below.\n\n💬 **Send a message in this channel to cancel the auto-close timer** and keep your ticket open.\n\nWhen your form is complete, tag <@&1505501828727570513> to signal you're ready for review.\n\nIf you don't respond within **{initial_inactivity_minutes} minutes**, your ticket will auto-close.",
+  "task": {
+    "auto_send": true,
+    "stage1_timer_minutes": 60,
+    "stage2_timer_days": 6,
+    "instructions": "📋 **Your Task Has Been Assigned!**\n\n<@{user}>, welcome to your creator task!\n\n**Step 1:** Send your **TikTok profile link** in this channel.\n\n⏳ You have **{stage1_minutes} minutes** to submit your TikTok link — if no link is received, your ticket will be auto-closed.",
+    "stage2_message": "✅ **TikTok link received!**\n\nGreat work <@{user}>! Now complete your task and submit your **Google Drive screen-record link** in this channel within **{stage2_days} days**.\n\nIf no drive link is received within that time, your ticket will be auto-closed.",
+    "completed_message": "🔵 **Drive link received!**\n\nThank you <@{user}>! Your submission has been received and will be reviewed by staff shortly. Sit tight!"
+  },
   "mention_triggers": [
     {
       "id": "form_complete",

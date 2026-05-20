@@ -226,6 +226,56 @@ export function buildIntakeFormEmbed(config) {
     .setTimestamp();
 }
 
+export function buildTaskAssignmentEmbed(content, stage1Minutes, userId, guild) {
+  const embed = new EmbedBuilder()
+    .setColor(0xED4245) // red
+    .setTitle('🔴  Task Assigned')
+    .setDescription(content)
+    .addFields(
+      { name: '⏳  Stage 1 Deadline', value: `Submit TikTok link within **${stage1Minutes} minutes**`, inline: false }
+    )
+    .setFooter({ text: '🔴 Awaiting TikTok profile link' })
+    .setTimestamp();
+  if (guild?.iconURL()) embed.setThumbnail(guild.iconURL({ dynamic: true }));
+  return embed;
+}
+
+export function buildStage2MessageEmbed(content, stage2Days, guild) {
+  const embed = new EmbedBuilder()
+    .setColor(0xFFA500) // orange
+    .setTitle('🟠  TikTok Link Received — Complete Your Task')
+    .setDescription(content)
+    .addFields(
+      { name: '⏳  Stage 2 Deadline', value: `Submit Google Drive link within **${stage2Days} days**`, inline: false }
+    )
+    .setFooter({ text: '🟠 Awaiting Google Drive screen-record link' })
+    .setTimestamp();
+  if (guild?.iconURL()) embed.setThumbnail(guild.iconURL({ dynamic: true }));
+  return embed;
+}
+
+export function buildDriveSubmittedEmbed(content, guild) {
+  const embed = new EmbedBuilder()
+    .setColor(0x3498DB) // blue
+    .setTitle('🔵  Drive Link Received — Under Review')
+    .setDescription(content)
+    .setFooter({ text: '🔵 Submission received — staff will review shortly' })
+    .setTimestamp();
+  if (guild?.iconURL()) embed.setThumbnail(guild.iconURL({ dynamic: true }));
+  return embed;
+}
+
+export function buildNormalAdminEmbed(content, guild) {
+  const embed = new EmbedBuilder()
+    .setColor(0xCCCC00)
+    .setTitle('📢  Message from Staff')
+    .setDescription(content)
+    .setFooter({ text: 'Icreateflow Staff' })
+    .setTimestamp();
+  if (guild?.iconURL()) embed.setThumbnail(guild.iconURL({ dynamic: true }));
+  return embed;
+}
+
 export function taskActionRow(channelId) {
   return new ActionRowBuilder().addComponents(
     new ButtonBuilder()
