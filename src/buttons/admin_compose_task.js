@@ -28,7 +28,7 @@ export default async function adminComposeTask(interaction) {
     new ActionRowBuilder().addComponents(
       new TextInputBuilder()
         .setCustomId('stage1_minutes')
-        .setLabel('Stage 1 timer (minutes) — TikTok link deadline')
+        .setLabel('Stage 1 timer (min) — TikTok deadline')
         .setStyle(TextInputStyle.Short)
         .setValue(String(config.task?.stage1_timer_minutes ?? 60))
         .setRequired(true)
@@ -44,7 +44,7 @@ export default async function adminComposeTask(interaction) {
     new ActionRowBuilder().addComponents(
       new TextInputBuilder()
         .setCustomId('instructions')
-        .setLabel('Task instructions (use {user}, {stage1_minutes})')
+        .setLabel('Task instructions ({user}, {stage1_minutes})')
         .setStyle(TextInputStyle.Paragraph)
         .setValue(config.task?.instructions ?? '')
         .setMaxLength(2000)
@@ -53,7 +53,7 @@ export default async function adminComposeTask(interaction) {
     new ActionRowBuilder().addComponents(
       new TextInputBuilder()
         .setCustomId('stage2_message')
-        .setLabel('Stage 2 message (shown after TikTok link sent)')
+        .setLabel('Stage 2 message (after TikTok link)')
         .setStyle(TextInputStyle.Paragraph)
         .setValue(config.task?.stage2_message ?? '')
         .setMaxLength(1000)

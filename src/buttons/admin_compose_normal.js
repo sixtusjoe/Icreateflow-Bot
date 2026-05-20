@@ -21,7 +21,7 @@ export default async function adminComposeNormal(interaction) {
     new ActionRowBuilder().addComponents(
       new TextInputBuilder()
         .setCustomId('status_filter')
-        .setLabel("Category filter: open / task / approved / all")
+        .setLabel("Filter: open / task / approved / all")
         .setStyle(TextInputStyle.Short)
         .setValue('task')
         .setRequired(true)
