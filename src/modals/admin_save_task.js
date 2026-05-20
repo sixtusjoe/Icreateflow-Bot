@@ -2,6 +2,8 @@ import { PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { readFileSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { reloadTriggers } from '../handlers/triggerHandler.js';
+import { reloadTimerConfig } from '../handlers/timerHandler.js';
 import { log } from '../utils/logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -34,6 +36,8 @@ export default async function adminSaveTask(interaction) {
   };
 
   writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf8');
+  reloadTriggers();
+  reloadTimerConfig();
 
   log.info(`[admin] Task template updated by ${interaction.user.tag}`);
   await interaction.reply({
