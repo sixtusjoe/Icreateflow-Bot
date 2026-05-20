@@ -24,6 +24,7 @@ export async function execute(interaction) {
       { name: '🔒  Close All',    value: 'Force-close every open ticket',            inline: true },
       { name: '📢  Post Panel',   value: 'Re-send the Open Ticket panel here',       inline: true },
       { name: '📨  Send Message', value: 'Send task or message to ticket channels',  inline: true },
+      { name: '📋  Edit Task',    value: 'Edit task template & timers (no send)',   inline: true },
     )
     .setFooter({ text: 'Only visible to you — use responsibly' })
     .setTimestamp();
@@ -32,6 +33,7 @@ export async function execute(interaction) {
     new ButtonBuilder().setCustomId('admin_stats').setLabel('Stats').setEmoji('📊').setStyle(ButtonStyle.Secondary),
     new ButtonBuilder().setCustomId('admin_edit_config').setLabel('Edit Config').setEmoji('⚙️').setStyle(ButtonStyle.Secondary),
     new ButtonBuilder().setCustomId('admin_reload').setLabel('Reload Config').setEmoji('🔄').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('admin_edit_task').setLabel('Edit Task Template').setEmoji('📋').setStyle(ButtonStyle.Secondary),
   );
 
   const row2 = new ActionRowBuilder().addComponents(
