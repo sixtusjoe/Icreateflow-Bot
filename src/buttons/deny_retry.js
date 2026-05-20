@@ -1,4 +1,4 @@
-import { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } from 'discord.js';
+import { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, MessageFlags } from 'discord.js';
 import { getTicket } from '../db/database.js';
 import { isStaff } from '../utils/permissions.js';
 import { readFileSync } from 'fs';
@@ -12,12 +12,12 @@ export default async function denyRetry(interaction) {
   const channelId = interaction.customId.split('|')[1];
   const ticket    = getTicket(channelId);
 
-  if (!ticket) return interaction.reply({ content: '❌ Ticket not found.', ephemeral: true });
-  if (!isStaff(interaction.member, config)) return interaction.reply({ content: '❌ Only staff can send tickets back for revision.', ephemeral: true });
-  if (ticket.status !== 'in_task') return interaction.reply({ content: '❌ This ticket is not currently in the review stage.', ephemeral: true });
+  if (!ticket) return interaction.reply({ content: '❌ Ticket not found.', flags: MessageFlags.Ephemeral });
+  if (!isStaff(interaction.member, config)) return interaction.reply({ content: '❌ Only staff can send tickets back for revision.', flags: MessageFlags.Ephemeral });
+  if (ticket.status !== 'in_task') return interaction.reply({ content: '❌ This ticket is not currently in the review stage.', flags: MessageFlags.Ephemeral });
 
   if ((ticket.retry_count ?? 0) >= config.max_retries) {
-    return interaction.reply({ content: `❌ Max retries (${config.max_retries}) reached — use **Deny — Final** instead.`, ephemeral: true });
+    return interaction.reply({ content: `❌ Max retries (${config.max_retries}) reached — use **Deny — Final** instead.`, flags: MessageFlags.Ephemeral });
   }
 
   const modal = new ModalBuilder()

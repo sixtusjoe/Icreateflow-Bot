@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { buildPanelEmbed, openTicketRow } from '../utils/embeds.js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
@@ -18,7 +18,7 @@ export default {
     const embed  = buildPanelEmbed(config, guild);
     const row    = openTicketRow(config.panel.button_label ?? 'Open Ticket');
 
-    await interaction.reply({ content: '✅ Panel sent.', ephemeral: true });
+    await interaction.reply({ content: '✅ Panel sent.', flags: MessageFlags.Ephemeral });
     await interaction.channel.send({ embeds: [embed], components: [row] });
   },
 };

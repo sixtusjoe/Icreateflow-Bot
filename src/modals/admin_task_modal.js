@@ -1,4 +1,4 @@
-import { PermissionFlagsBits } from 'discord.js';
+import { PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { getTicketsByStatus, getOpenTicketForUser } from '../db/database.js';
 import { sendTaskAssignment } from '../handlers/taskHandler.js';
 import { log } from '../utils/logger.js';
@@ -10,13 +10,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default async function adminTaskModal(interaction) {
   if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
-    return interaction.reply({ content: '❌ Admins only.', ephemeral: true });
+    return interaction.reply({ content: '❌ Admins only.', flags: MessageFlags.Ephemeral });
   }
 
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   const config       = JSON.parse(readFileSync(join(__dirname, '../../config.json'), 'utf8'));
-  const target       = interaction.fields.getTextInputValue('target').trim();
+  // Target is encoded in the customId: admin_task_modal|{userId|all}
+  const target       = interaction.customId.split('|')[1] ?? 'all';
   const stage1Mins   = parseInt(interaction.fields.getTextInputValue('stage1_minutes').trim());
   const stage2Days   = parseInt(interaction.fields.getTextInputValue('stage2_days').trim());
   const instructions = interaction.fields.getTextInputValue('instructions');
@@ -29,11 +30,11 @@ export default async function adminTaskModal(interaction) {
   // Determine which channels to send to
   let channelIds = [];
 
-  if (target.toLowerCase() === 'all') {
+  if (target === 'all') {
     const tickets = getTicketsByStatus('in_task');
     channelIds = tickets.map(t => t.channel_id);
   } else {
-    // Treat target as a user ID
+    // target is a user ID
     const ticket = getOpenTicketForUser(target);
     if (!ticket) {
       return interaction.editReply({ content: `❌ No open ticket found for user <@${target}>.` });

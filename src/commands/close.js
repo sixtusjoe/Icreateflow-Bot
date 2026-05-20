@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { getTicket } from '../db/database.js';
 import { closeTicket } from '../handlers/ticketHandler.js';
 import { isStaff } from '../utils/permissions.js';
@@ -22,15 +22,15 @@ export default {
     const ticket = getTicket(interaction.channel.id);
 
     if (!ticket) {
-      return interaction.reply({ content: '❌ This channel is not a ticket.', ephemeral: true });
+      return interaction.reply({ content: '❌ This channel is not a ticket.', flags: MessageFlags.Ephemeral });
     }
 
     if (!isStaff(interaction.member, config)) {
-      return interaction.reply({ content: '❌ Only staff can use this command.', ephemeral: true });
+      return interaction.reply({ content: '❌ Only staff can use this command.', flags: MessageFlags.Ephemeral });
     }
 
     const reason = interaction.options.getString('reason') ?? 'Closed by staff';
-    await interaction.reply({ content: '🔒 Closing ticket…', ephemeral: true });
+    await interaction.reply({ content: '🔒 Closing ticket…', flags: MessageFlags.Ephemeral });
     await closeTicket(interaction.client, config, interaction.channel.id, reason, { actorId: interaction.user.id });
   },
 };

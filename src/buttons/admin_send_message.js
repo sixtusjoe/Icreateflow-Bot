@@ -1,8 +1,8 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits, MessageFlags } from 'discord.js';
 
 export default async function adminSendMessage(interaction) {
   if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
-    return interaction.reply({ content: '❌ Admins only.', ephemeral: true });
+    return interaction.reply({ content: '❌ Admins only.', flags: MessageFlags.Ephemeral });
   }
 
   const row = new ActionRowBuilder().addComponents(
@@ -19,6 +19,6 @@ export default async function adminSendMessage(interaction) {
   await interaction.reply({
     content: '**What would you like to send?**\n\n📋 **Task** — Sends a task embed with TikTok → Drive link flow and auto-close timers.\n💬 **Normal Message** — Sends a plain staff embed to selected tickets.',
     components: [row],
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 }

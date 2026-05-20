@@ -1,4 +1,4 @@
-import { PermissionFlagsBits } from 'discord.js';
+import { PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { readFileSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -11,7 +11,7 @@ const CONFIG_PATH = join(__dirname, '../../config.json');
 
 export default async function adminSaveConfig(interaction) {
   if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
-    return interaction.reply({ content: '❌ Admins only.', ephemeral: true });
+    return interaction.reply({ content: '❌ Admins only.', flags: MessageFlags.Ephemeral });
   }
 
   const inactivity  = parseInt(interaction.fields.getTextInputValue('inactivity_minutes'));
@@ -21,7 +21,7 @@ export default async function adminSaveConfig(interaction) {
   const welcomeMsg  = interaction.fields.getTextInputValue('welcome_message');
 
   if ([inactivity, warning, maxRetries].some(isNaN)) {
-    return interaction.reply({ content: '❌ Timer and retry fields must be numbers.', ephemeral: true });
+    return interaction.reply({ content: '❌ Timer and retry fields must be numbers.', flags: MessageFlags.Ephemeral });
   }
 
   const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
@@ -36,5 +36,5 @@ export default async function adminSaveConfig(interaction) {
   reloadTimerConfig();
 
   log.info(`[admin] Config updated by ${interaction.user.tag}`);
-  await interaction.reply({ content: '✅ Config saved and triggers reloaded.', ephemeral: true });
+  await interaction.reply({ content: '✅ Config saved and triggers reloaded.', flags: MessageFlags.Ephemeral });
 }

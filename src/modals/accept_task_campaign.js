@@ -1,4 +1,4 @@
-import { EmbedBuilder } from 'discord.js';
+import { EmbedBuilder, MessageFlags } from 'discord.js';
 import { getTicket } from '../db/database.js';
 import { moveTicket } from '../handlers/ticketHandler.js';
 import { notifyDmFailed } from '../handlers/dmHandler.js';
@@ -9,7 +9,7 @@ import { dirname, join } from 'path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default async function acceptTaskCampaign(interaction) {
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   const config       = JSON.parse(readFileSync(join(__dirname, '../../config.json'), 'utf8'));
   const channelId    = interaction.customId.split('|')[1];

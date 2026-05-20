@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { getTicket } from '../db/database.js';
 import { moveTicket } from '../handlers/ticketHandler.js';
 import { isStaff } from '../utils/permissions.js';
@@ -32,14 +32,14 @@ export default {
     const destination = interaction.options.getString('category');
 
     if (!ticket) {
-      return interaction.reply({ content: '❌ This channel is not a ticket.', ephemeral: true });
+      return interaction.reply({ content: '❌ This channel is not a ticket.', flags: MessageFlags.Ephemeral });
     }
 
     if (!isStaff(interaction.member, config)) {
-      return interaction.reply({ content: '❌ Only staff can move tickets.', ephemeral: true });
+      return interaction.reply({ content: '❌ Only staff can move tickets.', flags: MessageFlags.Ephemeral });
     }
 
-    await interaction.reply({ content: `➡️ Moving ticket to **${destination}**…`, ephemeral: true });
+    await interaction.reply({ content: `➡️ Moving ticket to **${destination}**…`, flags: MessageFlags.Ephemeral });
     await moveTicket(interaction.client, config, interaction.channel.id, destination, { actorId: interaction.user.id });
   },
 };

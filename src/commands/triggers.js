@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, MessageFlags } from 'discord.js';
 import { reloadTriggers, getTriggers } from '../handlers/triggerHandler.js';
 
 export default {
@@ -20,14 +20,14 @@ export default {
       const triggers = reloadTriggers();
       return interaction.reply({
         content: `✅ Reloaded **${triggers.length}** trigger(s) from config.json.`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
     if (sub === 'list') {
       const triggers = getTriggers();
       if (triggers.length === 0) {
-        return interaction.reply({ content: 'No triggers loaded.', ephemeral: true });
+        return interaction.reply({ content: 'No triggers loaded.', flags: MessageFlags.Ephemeral });
       }
 
       const embed = new EmbedBuilder()
@@ -49,7 +49,7 @@ export default {
         });
       }
 
-      return interaction.reply({ embeds: [embed], ephemeral: true });
+      return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
     }
   },
 };

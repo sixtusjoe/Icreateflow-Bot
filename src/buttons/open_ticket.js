@@ -1,4 +1,4 @@
-import { ChannelType } from 'discord.js';
+import { ChannelType, MessageFlags } from 'discord.js';
 import { createTicket, getOpenTicketForUser } from '../db/database.js';
 import { buildWelcomeEmbed, buildIntakeFormEmbed, closeButtonRow } from '../utils/embeds.js';
 import { sendDm, notifyDmFailed } from '../handlers/dmHandler.js';
@@ -18,7 +18,7 @@ export default async function openTicket(interaction) {
   const guild  = interaction.guild;
   const user   = interaction.user;
 
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   const existing = getOpenTicketForUser(user.id);
   if (existing) {

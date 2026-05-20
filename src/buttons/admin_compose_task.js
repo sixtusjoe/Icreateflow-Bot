@@ -1,65 +1,39 @@
-import { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, PermissionFlagsBits } from 'discord.js';
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import { ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
+import { getTicketsByStatus } from '../db/database.js';
 
 export default async function adminComposeTask(interaction) {
   if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
-    return interaction.reply({ content: '❌ Admins only.', ephemeral: true });
+    return interaction.reply({ content: '❌ Admins only.', flags: MessageFlags.Ephemeral });
   }
 
-  const config = JSON.parse(readFileSync(join(__dirname, '../../config.json'), 'utf8'));
+  const tickets = getTicketsByStatus('in_task');
 
-  const modal = new ModalBuilder()
-    .setCustomId('admin_task_modal')
-    .setTitle('Send Task Assignment');
+  const options = [
+    new StringSelectMenuOptionBuilder()
+      .setLabel('📋 All in-task tickets')
+      .setDescription('Send this task to every ticket currently in review')
+      .setValue('all'),
+  ];
 
-  modal.addComponents(
-    new ActionRowBuilder().addComponents(
-      new TextInputBuilder()
-        .setCustomId('target')
-        .setLabel("Target: 'all' or a specific user ID")
-        .setStyle(TextInputStyle.Short)
-        .setValue('all')
-        .setRequired(true)
-    ),
-    new ActionRowBuilder().addComponents(
-      new TextInputBuilder()
-        .setCustomId('stage1_minutes')
-        .setLabel('Stage 1 timer (min) — TikTok deadline')
-        .setStyle(TextInputStyle.Short)
-        .setValue(String(config.task?.stage1_timer_minutes ?? 60))
-        .setRequired(true)
-    ),
-    new ActionRowBuilder().addComponents(
-      new TextInputBuilder()
-        .setCustomId('stage2_days')
-        .setLabel('Stage 2 timer (days) — Drive link deadline')
-        .setStyle(TextInputStyle.Short)
-        .setValue(String(config.task?.stage2_timer_days ?? 6))
-        .setRequired(true)
-    ),
-    new ActionRowBuilder().addComponents(
-      new TextInputBuilder()
-        .setCustomId('instructions')
-        .setLabel('Task instructions ({user}, {stage1_minutes})')
-        .setStyle(TextInputStyle.Paragraph)
-        .setValue(config.task?.instructions ?? '')
-        .setMaxLength(2000)
-        .setRequired(true)
-    ),
-    new ActionRowBuilder().addComponents(
-      new TextInputBuilder()
-        .setCustomId('stage2_message')
-        .setLabel('Stage 2 message (after TikTok link)')
-        .setStyle(TextInputStyle.Paragraph)
-        .setValue(config.task?.stage2_message ?? '')
-        .setMaxLength(1000)
-        .setRequired(true)
-    ),
-  );
+  // Add individual ticket owners (max 24 more to stay within Discord's 25 option limit)
+  for (const ticket of tickets.slice(0, 24)) {
+    const channelName = interaction.client.channels.cache.get(ticket.channel_id)?.name ?? ticket.channel_id;
+    options.push(
+      new StringSelectMenuOptionBuilder()
+        .setLabel(`@${channelName}`)
+        .setDescription(`User ID: ${ticket.user_id}`)
+        .setValue(ticket.user_id)
+    );
+  }
 
-  await interaction.showModal(modal);
+  const select = new StringSelectMenuBuilder()
+    .setCustomId('admin_select_task_user')
+    .setPlaceholder('Choose who to send this task to…')
+    .addOptions(options);
+
+  await interaction.reply({
+    content: '**📋 Send Task — Select target:**',
+    components: [new ActionRowBuilder().addComponents(select)],
+    flags: MessageFlags.Ephemeral,
+  });
 }

@@ -1,3 +1,4 @@
+import { MessageFlags } from 'discord.js';
 import { getTicket } from '../db/database.js';
 import { closeTicket } from '../handlers/ticketHandler.js';
 import { readFileSync } from 'fs';
@@ -10,11 +11,11 @@ export default async function closeConfirm(interaction) {
   const answer = interaction.fields.getTextInputValue('close_reason').trim().toLowerCase();
 
   if (answer !== 'yes') {
-    return interaction.reply({ content: '❌ Close cancelled.', ephemeral: true });
+    return interaction.reply({ content: '❌ Close cancelled.', flags: MessageFlags.Ephemeral });
   }
 
   const config = JSON.parse(readFileSync(join(__dirname, '../../config.json'), 'utf8'));
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   try {
     await closeTicket(interaction.client, config, interaction.channel.id, 'Closed by ticket owner', { actorId: interaction.user.id });

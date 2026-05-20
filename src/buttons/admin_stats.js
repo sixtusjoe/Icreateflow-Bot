@@ -1,9 +1,9 @@
-import { EmbedBuilder, PermissionFlagsBits } from 'discord.js';
+import { EmbedBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { getTicketStats } from '../db/database.js';
 
 export default async function adminStats(interaction) {
   if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
-    return interaction.reply({ content: '❌ Admins only.', ephemeral: true });
+    return interaction.reply({ content: '❌ Admins only.', flags: MessageFlags.Ephemeral });
   }
 
   const { statuses, total, dmsSent } = getTicketStats();
@@ -25,5 +25,5 @@ export default async function adminStats(interaction) {
     )
     .setTimestamp();
 
-  await interaction.reply({ embeds: [embed], ephemeral: true });
+  await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
 }

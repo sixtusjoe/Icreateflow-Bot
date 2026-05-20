@@ -1,4 +1,4 @@
-import { PermissionFlagsBits } from 'discord.js';
+import { PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { db } from '../db/database.js';
 import { closeTicket } from '../handlers/ticketHandler.js';
 import { readFileSync } from 'fs';
@@ -10,10 +10,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default async function adminCloseAll(interaction) {
   if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
-    return interaction.reply({ content: '❌ Admins only.', ephemeral: true });
+    return interaction.reply({ content: '❌ Admins only.', flags: MessageFlags.Ephemeral });
   }
 
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   const config  = JSON.parse(readFileSync(join(__dirname, '../../config.json'), 'utf8'));
   const tickets = db.prepare(

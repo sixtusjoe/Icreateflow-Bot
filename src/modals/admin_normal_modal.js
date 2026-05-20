@@ -1,35 +1,33 @@
-import { PermissionFlagsBits } from 'discord.js';
+import { PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { getTicketsByStatus, getOpenTicketForUser } from '../db/database.js';
 import { buildNormalAdminEmbed } from '../utils/embeds.js';
 import { log } from '../utils/logger.js';
 
 export default async function adminNormalModal(interaction) {
   if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
-    return interaction.reply({ content: '❌ Admins only.', ephemeral: true });
+    return interaction.reply({ content: '❌ Admins only.', flags: MessageFlags.Ephemeral });
   }
 
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-  const target       = interaction.fields.getTextInputValue('target').trim();
-  const statusFilter = interaction.fields.getTextInputValue('status_filter').trim().toLowerCase();
-  const content      = interaction.fields.getTextInputValue('content');
-
-  const STATUS_MAP = { open: 'open', task: 'in_task', approved: 'approved', all: null };
-  const mappedStatus = STATUS_MAP[statusFilter];
-  if (mappedStatus === undefined) {
-    return interaction.editReply({ content: '❌ Category filter must be: open, task, approved, or all.' });
-  }
+  // Target is encoded in customId: admin_normal_modal|{userId|status:open|status:all...}
+  const target  = interaction.customId.split('|')[1] ?? 'status:all';
+  const content = interaction.fields.getTextInputValue('content');
 
   // Determine target channels
   let channelIds = [];
 
-  if (target.toLowerCase() === 'all') {
-    const statuses = mappedStatus ? [mappedStatus] : ['open', 'in_task', 'approved'];
+  if (target.startsWith('status:')) {
+    const filter = target.replace('status:', '');
+    const statuses = filter === 'all' ? ['open', 'in_task', 'approved']
+      : filter === 'task' ? ['in_task']
+      : [filter];
     for (const s of statuses) {
       const tickets = getTicketsByStatus(s);
       channelIds.push(...tickets.map(t => t.channel_id));
     }
   } else {
+    // target is a user ID
     const ticket = getOpenTicketForUser(target);
     if (!ticket) {
       return interaction.editReply({ content: `❌ No open ticket found for user <@${target}>.` });

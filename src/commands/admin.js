@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -40,5 +40,5 @@ export async function execute(interaction) {
     new ButtonBuilder().setCustomId('admin_send_message').setLabel('Send Message').setEmoji('📨').setStyle(ButtonStyle.Primary),
   );
 
-  await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
+  await interaction.reply({ embeds: [embed], components: [row1, row2], flags: MessageFlags.Ephemeral });
 }

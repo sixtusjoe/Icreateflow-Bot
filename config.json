@@ -52,7 +52,7 @@
       },
       "cooldown_seconds": 60,
       "actions": [
-        { "type": "reply",    "message": "✅ Thanks {user}! Your submission has been received. A staff member will review it and assign you a task shortly — sit tight!" },
+        { "type": "reply",    "message": "✅ Thanks {user}! Your submission has been received — your task is being assigned now. Check the next message!" },
         { "type": "move_ticket", "to": "task" }
       ]
     },

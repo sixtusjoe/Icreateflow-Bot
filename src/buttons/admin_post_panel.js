@@ -1,4 +1,4 @@
-import { PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from 'discord.js';
 import { buildPanelEmbed } from '../utils/embeds.js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
@@ -8,7 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default async function adminPostPanel(interaction) {
   if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
-    return interaction.reply({ content: '❌ Admins only.', ephemeral: true });
+    return interaction.reply({ content: '❌ Admins only.', flags: MessageFlags.Ephemeral });
   }
 
   const config = JSON.parse(readFileSync(join(__dirname, '../../config.json'), 'utf8'));
@@ -23,5 +23,5 @@ export default async function adminPostPanel(interaction) {
   );
 
   await interaction.channel.send({ embeds: [embed], components: [row] });
-  await interaction.reply({ content: '✅ Panel posted in this channel.', ephemeral: true });
+  await interaction.reply({ content: '✅ Panel posted in this channel.', flags: MessageFlags.Ephemeral });
 }

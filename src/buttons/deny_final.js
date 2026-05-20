@@ -1,4 +1,4 @@
-import { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } from 'discord.js';
+import { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, MessageFlags } from 'discord.js';
 import { getTicket } from '../db/database.js';
 import { isStaff } from '../utils/permissions.js';
 import { readFileSync } from 'fs';
@@ -12,9 +12,9 @@ export default async function denyFinal(interaction) {
   const channelId = interaction.customId.split('|')[1];
   const ticket    = getTicket(channelId);
 
-  if (!ticket) return interaction.reply({ content: '❌ Ticket not found.', ephemeral: true });
-  if (!isStaff(interaction.member, config)) return interaction.reply({ content: '❌ Only staff can deny applications.', ephemeral: true });
-  if (ticket.status !== 'in_task') return interaction.reply({ content: '❌ This ticket is not currently in the review stage.', ephemeral: true });
+  if (!ticket) return interaction.reply({ content: '❌ Ticket not found.', flags: MessageFlags.Ephemeral });
+  if (!isStaff(interaction.member, config)) return interaction.reply({ content: '❌ Only staff can deny applications.', flags: MessageFlags.Ephemeral });
+  if (ticket.status !== 'in_task') return interaction.reply({ content: '❌ This ticket is not currently in the review stage.', flags: MessageFlags.Ephemeral });
 
   const modal = new ModalBuilder()
     .setCustomId(`deny_final_reason|${channelId}`)

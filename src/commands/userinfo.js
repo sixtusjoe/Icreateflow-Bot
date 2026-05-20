@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { getTicket } from '../db/database.js';
 import { buildUserInfoEmbed } from '../utils/embeds.js';
 import { isStaff } from '../utils/permissions.js';
@@ -19,19 +19,19 @@ export default {
     const ticket = getTicket(interaction.channel.id);
 
     if (!ticket) {
-      return interaction.reply({ content: '❌ This channel is not a ticket.', ephemeral: true });
+      return interaction.reply({ content: '❌ This channel is not a ticket.', flags: MessageFlags.Ephemeral });
     }
 
     if (!isStaff(interaction.member, config)) {
-      return interaction.reply({ content: '❌ Only staff can use this command.', ephemeral: true });
+      return interaction.reply({ content: '❌ Only staff can use this command.', flags: MessageFlags.Ephemeral });
     }
 
     const member = await interaction.guild.members.fetch(ticket.user_id).catch(() => null);
     if (!member) {
-      return interaction.reply({ content: '❌ Could not fetch the ticket owner — they may have left the server.', ephemeral: true });
+      return interaction.reply({ content: '❌ Could not fetch the ticket owner — they may have left the server.', flags: MessageFlags.Ephemeral });
     }
 
     const embed = buildUserInfoEmbed(member, ticket, interaction.guild);
-    return interaction.reply({ embeds: [embed], ephemeral: true });
+    return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
   },
 };

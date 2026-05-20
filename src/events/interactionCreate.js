@@ -1,3 +1,4 @@
+import { MessageFlags } from 'discord.js';
 import { log } from '../utils/logger.js';
 
 export default {
@@ -26,6 +27,21 @@ export default {
         return;
       }
 
+      if (interaction.isStringSelectMenu()) {
+        const baseId = interaction.customId.split('|')[0].replace(/-/g, '_');
+        try {
+          const handler = await import(`../buttons/${baseId}.js`);
+          await handler.default(interaction);
+        } catch (err) {
+          if (err.code === 'ERR_MODULE_NOT_FOUND') {
+            log.warn(`[interactionCreate] No select handler for: ${interaction.customId}`);
+          } else {
+            throw err;
+          }
+        }
+        return;
+      }
+
       if (interaction.isModalSubmit()) {
         const baseId = interaction.customId.split('|')[0].replace(/-/g, '_');
         try {
@@ -42,7 +58,7 @@ export default {
       }
     } catch (err) {
       log.error('[interactionCreate] Unhandled error:', err.message, err.stack);
-      const reply = { content: '❌ An internal error occurred. Please try again.', ephemeral: true };
+      const reply = { content: '❌ An internal error occurred. Please try again.', flags: MessageFlags.Ephemeral };
       try {
         if (interaction.replied || interaction.deferred) {
           await interaction.followUp(reply);

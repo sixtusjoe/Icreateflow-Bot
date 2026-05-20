@@ -1,4 +1,4 @@
-import { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } from 'discord.js';
+import { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, MessageFlags } from 'discord.js';
 import { getTicket } from '../db/database.js';
 import { closeTicket } from '../handlers/ticketHandler.js';
 import { isStaff } from '../utils/permissions.js';
@@ -13,11 +13,11 @@ export default async function closeTicketButton(interaction) {
   const ticket = getTicket(interaction.channel.id);
 
   if (!ticket) {
-    return interaction.reply({ content: '❌ This is not an active ticket.', ephemeral: true });
+    return interaction.reply({ content: '❌ This is not an active ticket.', flags: MessageFlags.Ephemeral });
   }
 
   if (isStaff(interaction.member, config)) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     try {
       await closeTicket(interaction.client, config, interaction.channel.id, 'Closed by staff', { actorId: interaction.user.id });
     } catch (err) {
@@ -43,5 +43,5 @@ export default async function closeTicketButton(interaction) {
     return interaction.showModal(modal);
   }
 
-  return interaction.reply({ content: "❌ You don't have permission to close this ticket.", ephemeral: true });
+  return interaction.reply({ content: "❌ You don't have permission to close this ticket.", flags: MessageFlags.Ephemeral });
 }

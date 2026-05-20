@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { getTicket } from '../db/database.js';
 import { isStaff } from '../utils/permissions.js';
 import { logEvent } from '../handlers/logHandler.js';
@@ -22,18 +22,18 @@ export default {
     const ticket = getTicket(interaction.channel.id);
 
     if (!ticket) {
-      return interaction.reply({ content: '❌ This channel is not a ticket.', ephemeral: true });
+      return interaction.reply({ content: '❌ This channel is not a ticket.', flags: MessageFlags.Ephemeral });
     }
 
     if (!isStaff(interaction.member, config)) {
-      return interaction.reply({ content: '❌ Only staff can remove roles.', ephemeral: true });
+      return interaction.reply({ content: '❌ Only staff can remove roles.', flags: MessageFlags.Ephemeral });
     }
 
     const role   = interaction.options.getRole('role');
     const member = await interaction.guild.members.fetch(ticket.user_id).catch(() => null);
 
     if (!member) {
-      return interaction.reply({ content: '❌ Ticket owner not found in server.', ephemeral: true });
+      return interaction.reply({ content: '❌ Ticket owner not found in server.', flags: MessageFlags.Ephemeral });
     }
 
     await member.roles.remove(role.id);
@@ -45,7 +45,7 @@ export default {
 
     return interaction.reply({
       content: `✅ Removed **${role.name}** from <@${ticket.user_id}>.`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };
