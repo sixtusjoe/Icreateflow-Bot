@@ -39,7 +39,7 @@ async function validateConfig(config, guild) {
 }
 
 export default {
-  name: 'ready',
+  name: 'clientReady',
   once: true,
   async execute(client) {
     log.info(`Bot ready as ${client.user.tag}`);
