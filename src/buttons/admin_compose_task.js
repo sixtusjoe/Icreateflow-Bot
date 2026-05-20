@@ -6,22 +6,37 @@ export default async function adminComposeTask(interaction) {
     return interaction.reply({ content: '❌ Admins only.', flags: MessageFlags.Ephemeral });
   }
 
-  const tickets = getTicketsByStatus('in_task');
-
+  // Category-level options (mirrors admin_compose_normal structure)
   const options = [
     new StringSelectMenuOptionBuilder()
       .setLabel('📋 All in-task tickets')
-      .setDescription('Send this task to every ticket currently in review')
-      .setValue('all'),
+      .setDescription('Send task to every ticket currently in review')
+      .setValue('status:in_task'),
+    new StringSelectMenuOptionBuilder()
+      .setLabel('📂 All open tickets')
+      .setDescription('Tickets still filling out the intake form')
+      .setValue('status:open'),
   ];
 
-  // Add individual ticket owners (max 24 more to stay within Discord's 25 option limit)
-  for (const ticket of tickets.slice(0, 24)) {
+  // Individual ticket owners from all active statuses (max 23 to stay within Discord's 25 limit)
+  const all = [
+    ...getTicketsByStatus('open'),
+    ...getTicketsByStatus('in_task'),
+    ...getTicketsByStatus('approved'),
+  ];
+
+  const seen = new Set();
+  for (const ticket of all) {
+    if (seen.has(ticket.user_id)) continue;
+    seen.add(ticket.user_id);
+    if (options.length >= 25) break;
+
     const channelName = interaction.client.channels.cache.get(ticket.channel_id)?.name ?? ticket.channel_id;
+    const statusLabel = { open: 'Open', in_task: 'In Task', approved: 'Approved' }[ticket.status] ?? ticket.status;
     options.push(
       new StringSelectMenuOptionBuilder()
         .setLabel(`@${channelName}`)
-        .setDescription(`User ID: ${ticket.user_id}`)
+        .setDescription(`${statusLabel} — User ID: ${ticket.user_id}`)
         .setValue(ticket.user_id)
     );
   }

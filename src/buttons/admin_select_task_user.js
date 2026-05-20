@@ -6,12 +6,21 @@ import { dirname, join } from 'path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default async function adminSelectTaskUser(interaction) {
-  const selected = interaction.values[0]; // userId or 'all'
+  const selected = interaction.values[0]; // userId | 'status:in_task' | 'status:open'
   const config = JSON.parse(readFileSync(join(__dirname, '../../config.json'), 'utf8'));
+
+  // Build a human-readable title for the modal
+  const statusLabels = {
+    'status:in_task': 'All In-Task Tickets',
+    'status:open':    'All Open Tickets',
+  };
+  const label = selected.startsWith('status:')
+    ? statusLabels[selected] ?? selected
+    : interaction.component.options?.find(o => o.value === selected)?.label?.replace(/^@/, '') ?? selected;
 
   const modal = new ModalBuilder()
     .setCustomId(`admin_task_modal|${selected}`)
-    .setTitle(selected === 'all' ? 'Task → All In-Task Tickets' : `Task → @${interaction.component.options?.find(o => o.value === selected)?.label?.replace(/^@/, '') ?? selected}`);
+    .setTitle(`Task → ${label}`.slice(0, 45)); // Discord title cap
 
   modal.addComponents(
     new ActionRowBuilder().addComponents(
@@ -35,8 +44,8 @@ export default async function adminSelectTaskUser(interaction) {
         .setCustomId('instructions')
         .setLabel('Task instructions ({user}, {stage1_minutes})')
         .setStyle(TextInputStyle.Paragraph)
-        .setValue(config.task?.instructions ?? '')
-        .setMaxLength(2000)
+        .setValue((config.task?.instructions ?? '').slice(0, 4000))
+        .setMaxLength(4000)
         .setRequired(true)
     ),
     new ActionRowBuilder().addComponents(
@@ -44,8 +53,8 @@ export default async function adminSelectTaskUser(interaction) {
         .setCustomId('stage2_message')
         .setLabel('Stage 2 message (after TikTok link)')
         .setStyle(TextInputStyle.Paragraph)
-        .setValue(config.task?.stage2_message ?? '')
-        .setMaxLength(1000)
+        .setValue((config.task?.stage2_message ?? '').slice(0, 4000))
+        .setMaxLength(4000)
         .setRequired(true)
     ),
   );

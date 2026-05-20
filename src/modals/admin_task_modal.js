@@ -16,8 +16,8 @@ export default async function adminTaskModal(interaction) {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   const config       = JSON.parse(readFileSync(join(__dirname, '../../config.json'), 'utf8'));
-  // Target is encoded in the customId: admin_task_modal|{userId|all}
-  const target       = interaction.customId.split('|')[1] ?? 'all';
+  // Target encoded in customId: admin_task_modal|{userId|status:in_task|status:open}
+  const target       = interaction.customId.split('|')[1] ?? 'status:in_task';
   const stage1Mins   = parseInt(interaction.fields.getTextInputValue('stage1_minutes').trim());
   const stage2Days   = parseInt(interaction.fields.getTextInputValue('stage2_days').trim());
   const instructions = interaction.fields.getTextInputValue('instructions');
@@ -30,9 +30,13 @@ export default async function adminTaskModal(interaction) {
   // Determine which channels to send to
   let channelIds = [];
 
-  if (target === 'all') {
-    const tickets = getTicketsByStatus('in_task');
-    channelIds = tickets.map(t => t.channel_id);
+  if (target.startsWith('status:')) {
+    const filter   = target.replace('status:', '');
+    const statuses = filter === 'all' ? ['open', 'in_task', 'approved'] : [filter];
+    for (const s of statuses) {
+      const tickets = getTicketsByStatus(s);
+      channelIds.push(...tickets.map(t => t.channel_id));
+    }
   } else {
     // target is a user ID
     const ticket = getOpenTicketForUser(target);
