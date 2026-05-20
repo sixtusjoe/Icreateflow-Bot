@@ -1,0 +1,77 @@
+{
+  "categories": {
+    "open":     "1505500904273743892",
+    "task":     "1506242204719517706",
+    "approved": "1506401444272541706",
+    "denied":   null,
+    "closed":   null
+  },
+  "roles": {
+    "staff":       "1505501828727570513",
+    "senior":      "1504933671688474695",
+    "ticket_ping": ["1505501828727570513"],
+    "creator":     "1506480820590870688"
+  },
+  "channels": {
+    "panel":       "1505501444122476614",
+    "log":         "1506402950837436517",
+    "transcripts": "1506403126935158814"
+  },
+  "timers": {
+    "initial_inactivity_minutes": 180,
+    "warning_minutes":            30,
+    "closed_hard_delete_hours":   0,
+    "denied_hard_delete_seconds": 30
+  },
+  "intake_form_url": "https://forms.gle/5KYQauVSNtdbuj4p9",
+  "max_retries": 2,
+  "panel": {
+    "title": "Open a Support Ticket",
+    "description": "Click the button below to open a ticket. A staff member will be with you shortly.",
+    "button_label": "Open Ticket",
+    "color": "#CCCC00"
+  },
+  "welcome_message": "👋 Welcome {user}! Please fill out the intake form below.\n\n💬 **Send a message in this channel to cancel the auto-close timer** and keep your ticket open.\n\nWhen your form is complete, tag <@&1505501828727570513> to signal you're ready for review.\n\nIf you don't respond within **{initial_inactivity_minutes} minutes**, your ticket will auto-close.",
+  "mention_triggers": [
+    {
+      "id": "form_complete",
+      "name": "User signals form is complete",
+      "active_in_status": ["open"],
+      "only_from_ticket_owner": true,
+      "match": {
+        "type": "role",
+        "id": "1505501828727570513"
+      },
+      "cooldown_seconds": 60,
+      "actions": [
+        { "type": "reply",    "message": "✅ Thanks {user}! Your submission has been received. A staff member will review it and assign you a task shortly — sit tight!" },
+        { "type": "move_ticket", "to": "task" }
+      ]
+    },
+    {
+      "id": "escalate_to_senior",
+      "name": "Staff escalates a ticket",
+      "active_in_status": ["in_task"],
+      "only_from_role": "1505501828727570513",
+      "match": {
+        "type": "role",
+        "id": "1504933671688474695"
+      },
+      "cooldown_seconds": 300,
+      "actions": [
+        { "type": "reply",     "message": "🔔 Escalating to senior staff." },
+        { "type": "ping_role", "role_id": "1504933671688474695", "message": "Senior review requested in {channel}" }
+      ]
+    }
+  ],
+  "dm_templates": {
+    "ticket_opened":   "👋 Hi {user}! Your ticket has been opened. Please fill out the intake form: {intake_form_url}\n\nWhen you're done, tag @Support Staff in your ticket channel.",
+    "moved_to_task":   "📋 Your submission has been received! A staff member is now reviewing your ticket. If accepted, you will be assigned a task — stay tuned!",
+    "accepted":        "🎉 Congratulations {user}! Your ticket has been **accepted**. A task will be assigned to you shortly — please check your ticket channel for next steps.",
+    "denied_final":    "📭 Your ticket was closed. Unfortunately your application was not accepted at this time.\n\nReason: {reason}",
+    "denied_retry":    "🔄 Your application needs revision.\n\nReason: {reason}\n\nYou can update your responses in the ticket channel and tag @Support Staff again when ready.",
+    "closed_inactive": "📭 Your ticket was closed due to inactivity — this does **not** mean your application was denied.\n\n💡 **Here's What You Can Do:**\n• You can open a new ticket anytime to reapply\n• Make sure to complete the form promptly next time\n• Staff will be happy to assist you again!",
+    "closed_manual":   "📭 Your ticket has been closed by staff. {reason}",
+    "timer_warning":   "⏳ Your ticket will auto-close in **{minutes} minutes** if you don't respond.\n\n💬 Just send any message in your ticket channel to cancel the timer and keep it open."
+  }
+}
