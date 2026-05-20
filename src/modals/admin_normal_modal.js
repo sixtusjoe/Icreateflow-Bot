@@ -12,6 +12,7 @@ export default async function adminNormalModal(interaction) {
 
   // Target is encoded in customId: admin_normal_modal|{userId|status:open|status:all...}
   const target  = interaction.customId.split('|')[1] ?? 'status:all';
+  const header  = interaction.fields.getTextInputValue('header').trim() || 'Message from Staff';
   const content = interaction.fields.getTextInputValue('content');
 
   // Determine target channels
@@ -40,7 +41,7 @@ export default async function adminNormalModal(interaction) {
   }
 
   const guild = interaction.guild;
-  const embed = buildNormalAdminEmbed(content, guild);
+  const embed = buildNormalAdminEmbed(content, guild, header);
 
   let sent = 0, failed = 0;
   for (const channelId of channelIds) {

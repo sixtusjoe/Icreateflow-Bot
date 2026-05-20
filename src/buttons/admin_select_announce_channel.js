@@ -1,15 +1,13 @@
 import { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } from 'discord.js';
 
-export default async function adminSelectNormalUser(interaction) {
-  const selected = interaction.values[0]; // userId or 'status:open' etc.
-
-  const label = selected.startsWith('status:')
-    ? { 'status:all': 'All Tickets', 'status:open': 'All Open', 'status:task': 'All In-Task', 'status:approved': 'All Approved' }[selected] ?? selected
-    : interaction.component.options?.find(o => o.value === selected)?.label?.replace(/^@/, '') ?? selected;
+export default async function adminSelectAnnounceChannel(interaction) {
+  const channelId = interaction.values[0];
+  const channel   = interaction.guild.channels.cache.get(channelId);
+  const name      = channel?.name ?? channelId;
 
   const modal = new ModalBuilder()
-    .setCustomId(`admin_normal_modal|${selected}`)
-    .setTitle(`Message → ${label}`.slice(0, 45));
+    .setCustomId(`admin_announce_modal|${channelId}`)
+    .setTitle(`Announce → #${name}`.slice(0, 45));
 
   modal.addComponents(
     new ActionRowBuilder().addComponents(
@@ -28,6 +26,14 @@ export default async function adminSelectNormalUser(interaction) {
         .setStyle(TextInputStyle.Paragraph)
         .setMaxLength(2000)
         .setRequired(true)
+    ),
+    new ActionRowBuilder().addComponents(
+      new TextInputBuilder()
+        .setCustomId('mention')
+        .setLabel('Mention (everyone / here / leave blank)')
+        .setStyle(TextInputStyle.Short)
+        .setPlaceholder('everyone')
+        .setRequired(false)
     ),
   );
 

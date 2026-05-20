@@ -12,12 +12,16 @@ export default async function adminSendMessage(interaction) {
       .setStyle(ButtonStyle.Danger),
     new ButtonBuilder()
       .setCustomId('admin_compose_normal')
-      .setLabel('💬  Send Normal Message')
+      .setLabel('💬  Message Tickets')
       .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId('admin_compose_announce')
+      .setLabel('📢  Announce to Channel')
+      .setStyle(ButtonStyle.Primary),
   );
 
   await interaction.reply({
-    content: '**What would you like to send?**\n\n📋 **Task** — Sends a task embed with TikTok → Drive link flow and auto-close timers.\n💬 **Normal Message** — Sends a plain staff embed to selected tickets.',
+    content: '**What would you like to send?**\n\n📋 **Task** — Sends a task embed with TikTok → Drive link flow and auto-close timers.\n💬 **Message Tickets** — Sends a staff embed to selected ticket channels.\n📢 **Announce to Channel** — Post in any server channel with optional @everyone / @here.',
     components: [row],
     flags: MessageFlags.Ephemeral,
   });

@@ -265,10 +265,10 @@ export function buildDriveSubmittedEmbed(content, guild) {
   return embed;
 }
 
-export function buildNormalAdminEmbed(content, guild) {
+export function buildNormalAdminEmbed(content, guild, title = 'Message from Staff') {
   const embed = new EmbedBuilder()
     .setColor(0xCCCC00)
-    .setTitle('📢  Message from Staff')
+    .setTitle(`📢  ${title}`)
     .setDescription(content)
     .setFooter({ text: 'Icreateflow Staff' })
     .setTimestamp();

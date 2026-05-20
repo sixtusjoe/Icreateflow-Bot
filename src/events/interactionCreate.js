@@ -27,7 +27,7 @@ export default {
         return;
       }
 
-      if (interaction.isStringSelectMenu()) {
+      if (interaction.isStringSelectMenu() || interaction.isChannelSelectMenu()) {
         const baseId = interaction.customId.split('|')[0].replace(/-/g, '_');
         try {
           const handler = await import(`../buttons/${baseId}.js`);
