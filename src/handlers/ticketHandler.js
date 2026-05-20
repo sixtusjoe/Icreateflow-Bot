@@ -53,29 +53,43 @@ export async function moveTicket(client, config, channelId, destination, options
   if (destination === 'task') {
     cancelTimer(channelId);
 
-    // Post staff review embed in a private thread — only staff with Manage Threads see it,
-    // user stays in the ticket channel with full access and never sees the buttons
     const updatedTicket = getTicket(channelId);
     const embed = buildTaskActionEmbed(updatedTicket, config, guild);
-    try {
-      const { ChannelType } = await import('discord.js');
-      const thread = await channel.threads.create({
-        name: '🔒 Staff Review',
-        type: ChannelType.PrivateThread,
-        invitable: false,
-      });
-      await thread.send({ embeds: [embed], components: [taskActionRow(channelId)] });
 
-      // Add all staff and senior members to the thread so they can see it
-      const members = await guild.members.fetch();
-      for (const [, member] of members) {
-        if (member.roles.cache.has(config.roles.staff) || member.roles.cache.has(config.roles.senior)) {
-          await thread.members.add(member.id).catch(() => {});
+    // Check if a Staff Review thread already exists to prevent duplicates
+    const { ChannelType } = await import('discord.js');
+    await channel.threads.fetchActive().catch(() => null);
+    const existingThread = channel.threads.cache.find(t => t.name === '🔒 Staff Review');
+
+    if (existingThread) {
+      log.warn(`[ticketHandler] Staff Review thread already exists in ${channelId}, skipping creation`);
+    } else {
+      // Create private thread — only staff with Manage Threads see it automatically
+      let thread = null;
+      try {
+        thread = await channel.threads.create({
+          name: '🔒 Staff Review',
+          type: ChannelType.PrivateThread,
+          invitable: false,
+        });
+        await thread.send({ embeds: [embed], components: [taskActionRow(channelId)] });
+      } catch (err) {
+        log.warn(`[ticketHandler] Failed to create staff review thread: ${err.message}`);
+      }
+
+      // Add staff members separately — failure here must not post embed in channel
+      if (thread) {
+        try {
+          const members = await guild.members.fetch();
+          for (const [, member] of members) {
+            if (member.roles.cache.has(config.roles.staff) || member.roles.cache.has(config.roles.senior)) {
+              await thread.members.add(member.id).catch(() => {});
+            }
+          }
+        } catch (err) {
+          log.warn(`[ticketHandler] Failed to add staff to review thread: ${err.message}`);
         }
       }
-    } catch (err) {
-      log.warn(`[ticketHandler] Failed to create staff review thread: ${err.message}`);
-      await channel.send({ embeds: [embed], components: [taskActionRow(channelId)] });
     }
 
     if (!options.skipDm) {
