@@ -100,15 +100,16 @@ export async function moveTicket(client, config, channelId, destination, options
       }
     }
 
+    // Deny the Creator role at channel level so other creators can't see this ticket.
+    // The owner's personal user overwrite (set at ticket creation) always wins over role denies.
     if (config.roles.creator && config.roles.creator !== 'REPLACE_WITH_CREATOR_ROLE_ID') {
       try {
         await channel.permissionOverwrites.edit(config.roles.creator, {
-          ViewChannel: true,
-          ReadMessageHistory: true,
+          ViewChannel: false,
         });
-        log.info(`[ticketHandler] Added Creator role overwrite to channel ${channelId}`);
+        log.info(`[ticketHandler] Blocked Creator role from channel ${channelId}`);
       } catch (err) {
-        log.warn(`[ticketHandler] Failed to add Creator role overwrite: ${err.message}`);
+        log.warn(`[ticketHandler] Failed to block Creator role on channel: ${err.message}`);
       }
     }
 
