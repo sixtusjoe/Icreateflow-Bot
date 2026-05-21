@@ -104,6 +104,14 @@ export async function advanceTaskStage(client, config, ticket, message) {
     await channel.send({ content: `<@${user_id}>`, embeds: [embed] });
     await setChannelIcon(channel, '🟠');
 
+    // Move to Interviewing category if configured
+    const interviewingId = config.categories?.interviewing;
+    if (interviewingId) {
+      await channel.setParent(interviewingId, { lockPermissions: false }).catch(err =>
+        log.warn(`[taskHandler] Failed to move channel to Interviewing: ${err.message}`)
+      );
+    }
+
     insertEvent({ channelId: chId, eventType: 'task_stage1_complete' });
     await logEvent('task_stage1_complete', { Channel: `<#${chId}>`, Owner: `<@${user_id}>` }, { channelId: chId });
     log.info(`[taskHandler] Stage 1 complete for ${chId} — advancing to awaiting_drive`);
@@ -126,6 +134,14 @@ export async function advanceTaskStage(client, config, ticket, message) {
     const embed = buildDriveSubmittedEmbed(completedText, guild);
     await channel.send({ content: `<@${user_id}>`, embeds: [embed] });
     await setChannelIcon(channel, '🔵');
+
+    // Move to Under Review category if configured
+    const underReviewId = config.categories?.under_review;
+    if (underReviewId) {
+      await channel.setParent(underReviewId, { lockPermissions: false }).catch(err =>
+        log.warn(`[taskHandler] Failed to move channel to Under Review: ${err.message}`)
+      );
+    }
 
     insertEvent({ channelId: chId, eventType: 'task_stage2_complete' });
     await logEvent('task_stage2_complete', { Channel: `<#${chId}>`, Owner: `<@${user_id}>` }, { channelId: chId });

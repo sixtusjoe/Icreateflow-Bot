@@ -229,7 +229,7 @@ export function buildIntakeFormEmbed(config) {
 export function buildTaskAssignmentEmbed(content, stage1Minutes, userId, guild) {
   const embed = new EmbedBuilder()
     .setColor(0xED4245) // red
-    .setTitle('🔴  Task Assigned')
+    .setTitle('🔴  ASSESSMENT')
     .setDescription(content)
     .addFields(
       { name: '⏳  Stage 1 Deadline', value: `Submit TikTok link within **${stage1Minutes} minutes**`, inline: false }
