@@ -97,7 +97,7 @@ pm2 startup   # follow the printed instruction to auto-start on reboot
 
 ## VPS Deployment (Production)
 
-The bot runs on a VPS at `187.124.231.108` managed with PM2.
+The bot runs on a VPS at `95.111.228.80` managed with PM2.
 
 ### Deploy / push updates from your Mac
 
@@ -108,16 +108,16 @@ rsync -avz --progress \
   --exclude 'data/*.db' \
   --exclude '.env' \
   "/Users/mac/Icreateflow App/discord-ticket-bot/" \
-  root@187.124.231.108:/root/icreateflow-bot/
+  root@95.111.228.80:/root/icreateflow-bot/
 
-ssh -i ~/.ssh/id_ed25519 root@187.124.231.108 \
+ssh -i ~/.ssh/id_ed25519 root@95.111.228.80 \
   "cd /root/icreateflow-bot && pm2 restart discord-ticket-bot"
 ```
 
 ### VPS PM2 commands
 
 ```bash
-ssh -i ~/.ssh/id_ed25519 root@187.124.231.108
+ssh -i ~/.ssh/id_ed25519 root@95.111.228.80
 
 pm2 status                          # see all running processes
 pm2 logs discord-ticket-bot         # live logs
