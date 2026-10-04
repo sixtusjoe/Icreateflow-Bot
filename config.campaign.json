@@ -1,0 +1,33 @@
+{
+  "guild_id":            "1509334012710092933",
+  "main_guild_id":       "1502820089488216144",
+  "main_creator_role_id":"1506480820590870688",
+  "categories": {
+    "tickets":        "1509845348179382453",
+    "active_creator": "1509845503754502326"
+  },
+  "roles": {
+    "staff":          "1509847419645333655",
+    "creator":        "1509847100421177446",
+    "active_creator": "1509847790233321573"
+  },
+  "channels": {
+    "log":                "1509948368347070617",
+    "account_submission": "1509842666492395651",
+    "payout_submission":  "1509842920658833449"
+  },
+  "creator_types": [
+    {
+      "id": "va",
+      "label": "VA",
+      "description": "Virtual Assistant creator",
+      "terms": "• You **MUST** repost all the contents on all required platforms as required by the campaign\n• Failure to repost content may result in **payment delays**\n• Continued failure to fulfill your obligations may result in **forfeiture of pay entirely**\n\nThis is a binding part of your agreement with the brand. Please only proceed if you accept these terms.\n\n**You must agree to these terms to continue.**"
+    }
+  ],
+  "panel": {
+    "title": "Open a Ticket",
+    "description": "Click the button below to open your creator ticket.",
+    "button_label": "Open Ticket",
+    "color": "#CCCC00"
+  }
+}

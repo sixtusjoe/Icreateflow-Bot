@@ -1,10 +1,12 @@
 import { ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
-import { getTicketsByStatus } from '../db/database.js';
+import { getTicketsByStatus, getTicketsByTaskStage } from '../db/database.js';
 
 export default async function adminComposeNormal(interaction) {
   if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
     return interaction.reply({ content: '❌ Admins only.', flags: MessageFlags.Ephemeral });
   }
+
+  const guildId = interaction.guildId;
 
   const options = [
     new StringSelectMenuOptionBuilder()
@@ -16,9 +18,17 @@ export default async function adminComposeNormal(interaction) {
       .setDescription('Tickets still filling out the intake form')
       .setValue('status:open'),
     new StringSelectMenuOptionBuilder()
-      .setLabel('📋 All in-task tickets')
-      .setDescription('Tickets currently in the review/task stage')
-      .setValue('status:task'),
+      .setLabel('🔴 Ready for task')
+      .setDescription(`Awaiting TikTok link (${getTicketsByTaskStage('awaiting_tiktok', guildId).length} tickets)`)
+      .setValue('stage:awaiting_tiktok'),
+    new StringSelectMenuOptionBuilder()
+      .setLabel('🟠 Interviewing')
+      .setDescription(`Awaiting Drive link (${getTicketsByTaskStage('awaiting_drive', guildId).length} tickets)`)
+      .setValue('stage:awaiting_drive'),
+    new StringSelectMenuOptionBuilder()
+      .setLabel('🔵 Under Review')
+      .setDescription(`Drive link submitted (${getTicketsByTaskStage('drive_submitted', guildId).length} tickets)`)
+      .setValue('stage:drive_submitted'),
     new StringSelectMenuOptionBuilder()
       .setLabel('✅ All approved tickets')
       .setDescription('Tickets that have been accepted')
@@ -27,9 +37,9 @@ export default async function adminComposeNormal(interaction) {
 
   // Add individual ticket owners from all active statuses (max 21 to stay within 25 total)
   const all = [
-    ...getTicketsByStatus('open'),
-    ...getTicketsByStatus('in_task'),
-    ...getTicketsByStatus('approved'),
+    ...getTicketsByStatus('open', guildId),
+    ...getTicketsByStatus('in_task', guildId),
+    ...getTicketsByStatus('approved', guildId),
   ];
 
   const seen = new Set();

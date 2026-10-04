@@ -20,9 +20,9 @@ export default async function adminComposeTask(interaction) {
 
   // Individual ticket owners from all active statuses (max 23 to stay within Discord's 25 limit)
   const all = [
-    ...getTicketsByStatus('open'),
-    ...getTicketsByStatus('in_task'),
-    ...getTicketsByStatus('approved'),
+    ...getTicketsByStatus('open', interaction.guildId),
+    ...getTicketsByStatus('in_task', interaction.guildId),
+    ...getTicketsByStatus('approved', interaction.guildId),
   ];
 
   const seen = new Set();

@@ -1,6 +1,7 @@
 import { PermissionFlagsBits, MessageFlags } from 'discord.js';
-import { getTicketsByStatus, getOpenTicketForUser } from '../db/database.js';
+import { getTicketsByStatus, getTicketsByTaskStage, getOpenTicketForUser, getTicket } from '../db/database.js';
 import { buildNormalAdminEmbed } from '../utils/embeds.js';
+import { renderString } from '../utils/templates.js';
 import { log } from '../utils/logger.js';
 
 export default async function adminNormalModal(interaction) {
@@ -18,18 +19,23 @@ export default async function adminNormalModal(interaction) {
   // Determine target channels
   let channelIds = [];
 
-  if (target.startsWith('status:')) {
+  if (target.startsWith('stage:')) {
+    // Filter by specific task_stage (awaiting_tiktok, awaiting_drive, drive_submitted)
+    const taskStage = target.replace('stage:', '');
+    const tickets = getTicketsByTaskStage(taskStage, interaction.guildId);
+    channelIds.push(...tickets.map(t => t.channel_id));
+  } else if (target.startsWith('status:')) {
     const filter = target.replace('status:', '');
     const statuses = filter === 'all' ? ['open', 'in_task', 'approved']
       : filter === 'task' ? ['in_task']
       : [filter];
     for (const s of statuses) {
-      const tickets = getTicketsByStatus(s);
+      const tickets = getTicketsByStatus(s, interaction.guildId);
       channelIds.push(...tickets.map(t => t.channel_id));
     }
   } else {
     // target is a user ID
-    const ticket = getOpenTicketForUser(target);
+    const ticket = getOpenTicketForUser(target, interaction.guildId);
     if (!ticket) {
       return interaction.editReply({ content: `❌ No open ticket found for user <@${target}>.` });
     }
@@ -41,14 +47,32 @@ export default async function adminNormalModal(interaction) {
   }
 
   const guild = interaction.guild;
-  const embed = buildNormalAdminEmbed(content, guild, header);
+  // Detect if the message uses {user} — if so we need a per-channel render + ping
+  const hasUserTag = content.includes('{user}') || header.includes('{user}');
 
   let sent = 0, failed = 0;
   for (const channelId of channelIds) {
     try {
       const channel = await interaction.client.channels.fetch(channelId).catch(() => null);
       if (!channel) { failed++; continue; }
-      await channel.send({ embeds: [embed] });
+
+      let resolvedContent = content;
+      let resolvedHeader  = header;
+      let pingContent     = undefined;
+
+      if (hasUserTag) {
+        const ticket = getTicket(channelId);
+        const userId = ticket?.user_id;
+        if (userId) {
+          const vars = { user: `<@${userId}>` };
+          resolvedContent = renderString(content, vars);
+          resolvedHeader  = renderString(header,  vars);
+          pingContent     = `<@${userId}>`;   // actual ping so they get notified
+        }
+      }
+
+      const embed = buildNormalAdminEmbed(resolvedContent, guild, resolvedHeader);
+      await channel.send({ content: pingContent, embeds: [embed] });
       sent++;
     } catch (err) {
       log.error(`[adminNormalModal] Failed to send to ${channelId}: ${err.message}`);

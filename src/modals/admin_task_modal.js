@@ -34,12 +34,12 @@ export default async function adminTaskModal(interaction) {
     const filter   = target.replace('status:', '');
     const statuses = filter === 'all' ? ['open', 'in_task', 'approved'] : [filter];
     for (const s of statuses) {
-      const tickets = getTicketsByStatus(s);
+      const tickets = getTicketsByStatus(s, interaction.guildId);
       channelIds.push(...tickets.map(t => t.channel_id));
     }
   } else {
     // target is a user ID
-    const ticket = getOpenTicketForUser(target);
+    const ticket = getOpenTicketForUser(target, interaction.guildId);
     if (!ticket) {
       return interaction.editReply({ content: `❌ No open ticket found for user <@${target}>.` });
     }

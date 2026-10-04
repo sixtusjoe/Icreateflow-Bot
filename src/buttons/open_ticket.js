@@ -20,7 +20,7 @@ export default async function openTicket(interaction) {
 
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-  const existing = getOpenTicketForUser(user.id);
+  const existing = getOpenTicketForUser(user.id, guild.id);
   if (existing) {
     // Verify the channel still exists — if not, auto-clear the stale record
     const existingChannel = await interaction.client.channels.fetch(existing.channel_id).catch(() => null);

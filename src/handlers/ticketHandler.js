@@ -145,9 +145,16 @@ export async function moveTicket(client, config, channelId, destination, options
     const embed = buildApprovedEmbed(ticket, guild);
     await channel.send({ embeds: [embed] });
 
-    // Rename channel with ✅ to visually mark creator approval (strip any existing icon prefix)
+    // Rename channel with ✅ and move to approved category (fire-and-forget — may be rate-limited)
     const currentName = channel.name.replace(/^[🔴🟠🔵✅⚠️]+[-\s]*/u, '').replace(/^[-\s]+/, '');
-    await channel.setName(`✅-${currentName}`).catch(() => {});
+    channel.setName(`✅-${currentName}`)
+      .catch(() => {})
+      .then(() => {
+        if (config.categories?.approved) {
+          return channel.setParent(config.categories.approved, { lockPermissions: false })
+            .catch(err => log.warn(`[ticketHandler] Failed to move to approved category: ${err.message}`));
+        }
+      });
 
     if (!options.skipDm) {
       const vars = buildVars({ user: `<@${ticket.user_id}>`, guild: guild.name });
